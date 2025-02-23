@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handle Failed Login</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            background: #fff;
+            color: #333;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .container h1 {
+            margin-bottom: 1.5rem;
+            color: #4b0082;
+        }
+        .container button {
+            background: #4b0082;
+            color: #fff;
+            border: none;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .container button:hover {
+            background: #6a1b9a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Too Many Failed Attempts</h1>
+        <p>You have reached the maximum number of failed login attempts. Please choose an option below:</p>
+        <form action="/handle_failed_login" method="POST">
+            <button type="submit" name="action" value="delete">Delete Account</button>
+            <button type="submit" name="action" value="password">Log in with Password</button>
+        </form>
+    </div>
+</body>
+</html>

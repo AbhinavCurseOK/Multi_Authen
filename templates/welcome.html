@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: url('/static/img/multi.jpg') no-repeat center center fixed;
+            background-size: 100% 100%;
+            background-position: center;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0); /* Semi-transparent background */
+            color: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+        }
+        .container h1 {
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #4b0082;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .logout-button:hover {
+            background: #6a1b9a;
+        }
+    </style>
+</head>
+<body>
+    <button class="logout-button" onclick="window.location.href='/logout'">Logout</button>
+    <div class="container">
+        <h1>Welcome To Multi-BiometricX</h1>
+    </div>
+</body>
+</html>

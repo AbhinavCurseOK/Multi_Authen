@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice and Image Authentication</title>
+    <style>
+         body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6e45e2, #88d3ce);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+}
+
+.container {
+    text-align: center;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+}
+
+.title {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.subtitle {
+    margin-bottom: 30px;
+    font-size: 1.2em;
+    color: #eee;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: translateY(-5px);
+}
+
+.btn:focus {
+    outline: none;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 class="title">Voice & Image Authentication</h1>
+            <p class="subtitle">Secure and Seamless Access with Biometric Verification</p>
+            <div class="button-group">
+                <button id="registerBtn" class="btn">Register</button>
+                <button id="loginBtn" class="btn">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("registerBtn").addEventListener("click", function() {
+            window.location.href = "/register";
+        });
+        document.getElementById("loginBtn").addEventListener("click", function() {
+            window.location.href = "/login";
+        });
+    </script>
+</body>
+</html>

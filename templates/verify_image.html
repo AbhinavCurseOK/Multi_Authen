@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Verification</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            background: #fff;
+            color: #333;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .container h1 {
+            margin-bottom: 1.5rem;
+            color: #4b0082;
+        }
+        .container button {
+            background: #4b0082;
+            color: #fff;
+            border: none;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .container button:hover {
+            background: #6a1b9a;
+        }
+        .container button.stop {
+            background: #e53935;
+        }
+        .container button.stop:hover {
+            background: #d32f2f;
+        }
+        #webcam {
+            width: 100%;
+            height: 250px;
+            border-radius: 10px;
+            margin-top: 1rem;
+            object-fit: cover;
+            display: none;
+        }
+        #canvas {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border: 2px solid #4b0082;
+            margin-top: 1rem;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Verification</h1>
+        <button id="startWebcam">Turn On Webcam</button>
+        <button id="stopWebcam" class="stop">Turn Off Webcam</button>
+        <video id="webcam" autoplay></video>
+        <canvas id="canvas"></canvas>
+        <button id="captureImage">Capture Image</button>
+        <form id="imageForm" action="/verify_image" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+            <input type="file" name="image" id="imageFile" hidden>
+            <button type="submit" id="submitImage">Submit Image</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('webcam');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const imageForm = document.getElementById('imageForm');
+            const submitImage = document.getElementById('submitImage');
+            const startWebcamButton = document.getElementById('startWebcam');
+            const stopWebcamButton = document.getElementById('stopWebcam');
+            const imageFileInput = document.getElementById('imageFile');
+            let videoStream = null;
+    
+            startWebcamButton.addEventListener('click', () => {
+                navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    videoStream = stream;
+                }).catch(error => {
+                    console.error('Error accessing webcam:', error);
+                    alert('Please allow camera access.');
+                });
+            });
+    
+            stopWebcamButton.addEventListener('click', () => {
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                    video.style.display = 'none';
+                    videoStream = null;
+                }
+            });
+    
+            document.getElementById('captureImage').addEventListener('click', () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.style.display = 'block'; // Show captured image
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                    video.style.display = 'none';
+                }
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'image.png', { type: 'image/png' });
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    imageFileInput.files = dataTransfer.files;
+                });
+            });
+    
+            imageForm.addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default form submission
+    
+                fetch(imageForm.action, {
+                    method: 'POST',
+                    body: new FormData(imageForm)
+                })
+                .then(response => {
+                    // Check for successful response (status 200-299) and handle redirects differently.
+                    if (!response.ok) {
+                        if (response.status === 302) { // Redirect
+                            window.location.href = response.headers.get('Location'); // Get the redirect URL from Location header. Note: this is not usually needed; a 302 is already a redirect.
+                            return; // Ensure execution stops here
+                        }
+                        // Handle other errors (4xx or 5xx)
+                        return response.text().then(text => {
+                            throw new Error(`HTTP error! status: ${response.status}, text: ${text}`);
+                        });
+                    } else {
+                        // Handle successful non-redirect responses (e.g., 200 OK with JSON data)
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    // If this block is reached it means that fetch returned 200 OK and contained JSON.
+                    if (data.success) {
+                        window.location.href = '/welcome';
+                    } else {
+                        window.location.href = '/login';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again. Details in the browser console.'); // More informative error message.
+                });
+            });
+        });
+    </script>
+</body>
+</html>
