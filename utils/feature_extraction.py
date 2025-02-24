@@ -158,3 +158,5 @@ def verify_myvoice(voice_path1, voice_path2, threshold=0.5):
     ])[0][0]
     print("score",similarity_score)
     return similarity_score > threshold
+
+#we add more later
