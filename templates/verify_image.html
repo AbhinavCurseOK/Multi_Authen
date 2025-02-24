@@ -118,7 +118,7 @@
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                canvas.style.display = 'block'; // Show captured image
+                canvas.style.display = 'block'; 
                 if (videoStream) {
                     videoStream.getTracks().forEach(track => track.stop());
                     video.style.display = 'none';
@@ -132,30 +132,27 @@
             });
     
             imageForm.addEventListener('submit', (event) => {
-                event.preventDefault(); // Prevent default form submission
+                event.preventDefault(); 
     
                 fetch(imageForm.action, {
                     method: 'POST',
                     body: new FormData(imageForm)
                 })
                 .then(response => {
-                    // Check for successful response (status 200-299) and handle redirects differently.
                     if (!response.ok) {
-                        if (response.status === 302) { // Redirect
-                            window.location.href = response.headers.get('Location'); // Get the redirect URL from Location header. Note: this is not usually needed; a 302 is already a redirect.
-                            return; // Ensure execution stops here
+                        if (response.status === 302) { 
+                            window.location.href = response.headers.get('Location'); 
+                            return; 
                         }
-                        // Handle other errors (4xx or 5xx)
                         return response.text().then(text => {
                             throw new Error(`HTTP error! status: ${response.status}, text: ${text}`);
                         });
                     } else {
-                        // Handle successful non-redirect responses (e.g., 200 OK with JSON data)
+
                         return response.json();
                     }
                 })
                 .then(data => {
-                    // If this block is reached it means that fetch returned 200 OK and contained JSON.
                     if (data.success) {
                         window.location.href = '/welcome';
                     } else {

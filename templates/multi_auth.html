@@ -93,7 +93,6 @@
             <button onclick="goToLogin()">Login</button>
         </div>
 
-        <!-- Image Capture -->
         <div id="imageSection">
             <button id="captureImage">Capture Image</button>
             <video id="video" autoplay></video>
@@ -105,7 +104,6 @@
             </form>
         </div>
 
-        <!-- Voice Capture -->
         <div id="voiceSection">
             <button id="recordAudio">Record Audio</button>
             <div id="timer">Recording: 6s</div>
@@ -117,7 +115,6 @@
             </form>
         </div>
 
-        <!-- Both Image & Voice Capture -->
         <div id="bothSection">
             <button id="recordAudioBoth">Record Audio</button>
             <div id="timerBoth">Recording: 6s</div>
@@ -129,7 +126,6 @@
             </form>
         </div>
 
-        <!-- Image Capture for Both -->
         <div id="imageCaptureSection">
             <button type="button" id="captureImageBoth">Capture Image</button>
             <video id="videoBoth" autoplay></video>
@@ -182,7 +178,6 @@
             const track = stream.getVideoTracks()[0];
             const imageCapture = new ImageCapture(track);
 
-            // Make the canvas visible
             canvas.classList.remove('hidden');
 
             imageCapture.takePhoto().then(blob => {
@@ -207,7 +202,6 @@
                 alert('Error capturing image.');
             }).finally(() => {
                 track.stop();
-                // Hide the canvas again if needed
                 canvas.classList.add('hidden');
                 video.style.display = 'none';
             });
@@ -224,8 +218,8 @@
 
             const result = await response.json();
             if (result.success) {
-                alert(result.message); // Show success message
-                window.location.href = "/login"; // Redirect to login page
+                alert(result.message); 
+                window.location.href = "/login"; 
             } else {
                 alert(result.message);
             }
@@ -255,7 +249,6 @@
                     mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
 
-                        // Debugging: Print MIME type and size
                         console.log("Audio Blob Type:", audioBlob.type);
                         console.log("Audio Blob Size:", audioBlob.size, "bytes");
 
@@ -264,31 +257,24 @@
                             return;
                         }
 
-                        // Create an object URL for playback
                         const audioUrl = URL.createObjectURL(audioBlob);
                         audioPlayer.src = audioUrl;
-                        audioPlayer.style.display = "block"; // Show the audio player
+                        audioPlayer.style.display = "block"; 
 
-                        // Convert Blob to File before submission
                         const audioFile = new File([audioBlob], "audio.wav", { type: 'audio/wav' });
 
-                        // Debugging: Check if file object is created
                         console.log("Audio File Created:", audioFile);
 
-                        // Attach the file to the hidden input field
                         let fileDataTransfer = new DataTransfer();
                         fileDataTransfer.items.add(audioFile);
                         audioFileInput.files = fileDataTransfer.files;
 
-                        // Debugging: Check if file is attached to input
                         console.log("Attached File Name:", audioFileInput.files[0]?.name);
                         console.log("Attached File Size:", audioFileInput.files[0]?.size, "bytes");
 
-                        // Enable Submit Button
                         submitButton.disabled = false;
                     };
 
-                    // Timer Countdown (6 seconds)
                     let timeLeft = 6;
                     timerElement.innerText = `Recording: ${timeLeft}s`;
                     timerElement.style.display = "block";
@@ -312,7 +298,6 @@
                 }
             });
 
-            // Prevent form submission if no file is recorded
             submitButton.addEventListener("click", async function (event) {
                 event.preventDefault();
 
@@ -329,17 +314,16 @@
 
                 const result = await response.json();
                 if (result.success) {
-                    alert(result.message); // Show success message
-                    window.location.href = "/login"; // Redirect to login page
+                    alert(result.message); 
+                    window.location.href = "/login"; 
                 } else {
                     alert(result.message);
                     if (result.message.includes('Fake voice detected')) {
-                        window.location.href = "/register"; // Redirect to register page
+                        window.location.href = "/register"; 
                     }
                 }
             });
 
-            // Allow re-recording
             audioPlayer.addEventListener("ended", function () {
                 recordButton.disabled = false;
             });
@@ -353,7 +337,6 @@
             const track = stream.getVideoTracks()[0];
             const imageCapture = new ImageCapture(track);
 
-            // Make the canvas visible
             canvasBoth.classList.remove('hidden');
 
             imageCapture.takePhoto().then(blob => {
@@ -378,7 +361,6 @@
                 alert('Error capturing image.');
             }).finally(() => {
                 track.stop();
-                // Hide the canvas again if needed
                 canvasBoth.classList.add('hidden');
                 videoBoth.style.display = 'none';
             });
@@ -439,7 +421,7 @@
             } else {
                 alert(result.message);
                 if (result.message.includes('Fake voice detected')) {
-                    window.location.href = "/register"; // Redirect to register page
+                    window.location.href = "/register"; 
                 }
             }
         });

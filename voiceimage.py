@@ -1,25 +1,58 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import firebase_admin
+from flask_cors import CORS
 from firebase_admin import credentials, storage, auth, db
 import time
 import tempfile
 from datetime import datetime, timezone
 import os
-from werkzeug.utils import secure_filename
 from utils.feature_extraction import verify_fake_voice, verify_myvoice, verify_myimage
 import logging
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = os.getenv('SECRET_KEY') 
+CORS(app)
 
-cred = credentials.Certificate("biometric-multi-firebase-adminsdk-fbsvc-788f8ffd5e.json")
+cred_dict = {
+    "type": os.getenv("TYPE"),
+    "project_id": os.getenv("PROJECT_ID"),
+    "private_key_id": os.getenv("PRIVATE_KEY_ID"),
+    "private_key": os.getenv("PRIVATE_KEY").replace('\\n', '\n'),
+    "client_email": os.getenv("CLIENT_EMAIL"),
+    "client_id": os.getenv("CLIENT_ID"),
+    "auth_uri": os.getenv("AUTH_URI"),
+    "token_uri": os.getenv("TOKEN_URI"),
+    "auth_provider_x509_cert_url": os.getenv("AUTH_PROVIDER_X509_CERT_URL"),
+    "client_x509_cert_url": os.getenv("CLIENT_X509_CERT_URL"),
+    "universe_domain": os.getenv("UNIVERSE_DOMAIN")
+}
+
+cred = credentials.Certificate(cred_dict)
 firebase_admin.initialize_app(
     cred,
     {
-        "databaseURL": "https://biometric-multi-default-rtdb.firebaseio.com/",
-        "storageBucket": "biometric-multi.firebasestorage.app",
-    },)
+        "databaseURL": os.getenv("DATABASE_URL"),
+        "storageBucket": os.getenv("STORAGE_BUCKET"),
+    },
+)
 bucket = storage.bucket()
+
+@app.route('/firebase-config')
+def firebase_config():
+    config = {
+        "apiKey": os.getenv("FIREBASE_API_KEY"),
+        "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+        "databaseURL": os.getenv("FIREBASE_DATABASE_URL"),
+        "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+        "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+        "appId": os.getenv("FIREBASE_APP_ID"),
+        "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
+    }
+    return jsonify(config)
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -47,7 +80,8 @@ def register():
                 'last_login': None,
                 'auth_mode': ['password'],
                 'imageUrl': None,
-                'voiceUrl': None})
+                'voiceUrl': None
+            })
             return jsonify({'success': True, 'message': 'Registration successful! Please select your authentication method.', 'user_id': user_id})
         except auth.EmailAlreadyExistsError:
             return jsonify({'success': False, 'message': 'Email already exists. Try logging in.'})
@@ -137,7 +171,7 @@ def voice_registration():
 def download_file_from_storage(file_path, file_type):
     try:
         bucket = storage.bucket()
-        blob = bucket.blob(file_path)          
+        blob = bucket.blob(file_path)  
         if not blob.exists():
             logging.error("File does not exist in Storage!")
             return None
@@ -295,7 +329,7 @@ def verify_image():
         if not image_url:
             raise Exception("No image URL found for the user.")
         logging.info(f"Image URL: {image_url}")
-        relative_image_path = '/'.join(image_url.split('/')[4:]) 
+        relative_image_path = '/'.join(image_url.split('/')[4:])          
         image_path_of = download_file_from_storage(relative_image_path, 'png')
         if not image_path_of:
             raise Exception("Failed to download the original image from Firebase Storage.")
@@ -345,13 +379,13 @@ def verify_voice():
         if not voice_url:
             raise Exception("No voice URL found for the user.")
         logging.info(f"Voice URL: {voice_url}")
-        relative_voice_path = '/'.join(voice_url.split('/')[4:])  
+        relative_voice_path = '/'.join(voice_url.split('/')[4:]) 
         voice_path_of = download_file_from_storage(relative_voice_path, 'wav')
         if not voice_path_of:
-            raise Exception("Failed to download the original voice from Firebase Storage.")        
+            raise Exception("Failed to download the original voice from Firebase Storage.")
         downloaded_verify_voice_path = download_file_from_storage(verify_voice_filename, 'wav')
         if not downloaded_verify_voice_path:
-            raise Exception("Failed to download the verification voice from Firebase Storage.")        
+            raise Exception("Failed to download the verification voice from Firebase Storage.")
         prediction = verify_fake_voice(downloaded_verify_voice_path)
         if prediction > 0.5:
             increment_failed_attempts(user_id)
@@ -408,19 +442,18 @@ def verify_both():
         verify_audio_blob = bucket.blob(verify_audio_filename)
         verify_image_blob = bucket.blob(verify_image_filename)
         verify_audio_blob.upload_from_filename(audio_path)
-        verify_image_blob.upload_from_filename(image_path)        
+        verify_image_blob.upload_from_filename(image_path)
         logging.info(f"Verification audio uploaded: {verify_audio_filename}")
         logging.info(f"Verification image uploaded: {verify_image_filename}")
         downloaded_audio_path = download_file_from_storage(verify_audio_filename, 'wav')
         downloaded_image_path = download_file_from_storage(verify_image_filename, 'png')
-        
         if not downloaded_audio_path or not downloaded_image_path:
             raise Exception("Failed to download verification files from Firebase Storage.")
         user_ref = db.reference(f'users/{user_id}')
         voice_url = user_ref.child('voiceUrl').get()
         if not voice_url:
             raise Exception("No voice URL found for the user.")
-        relative_voice_path = '/'.join(voice_url.split('/')[4:])          
+        relative_voice_path = '/'.join(voice_url.split('/')[4:])  
         original_voice_path = download_file_from_storage(relative_voice_path, 'wav')
         if not original_voice_path:
             raise Exception("Failed to download the original voice from Firebase Storage.")
@@ -435,11 +468,9 @@ def verify_both():
         if not image_url:
             raise Exception("No image URL found for the user.")
         relative_image_path = '/'.join(image_url.split('/')[4:])  
-        
         original_image_path = download_file_from_storage(relative_image_path, 'png')
         if not original_image_path:
             raise Exception("Failed to download the original image from Firebase Storage.")
-
         if not verify_myimage(downloaded_image_path, original_image_path, threshold=0.5):
             increment_failed_attempts(user_id)
             return jsonify({'success': False, 'message': 'Image verification failed!'}), 400
@@ -517,6 +548,8 @@ def logout():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(debug=True, host='0.0.0.0', port=8080)
 
-#done    
+
+
+

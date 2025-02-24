@@ -163,7 +163,7 @@
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                canvas.style.display = 'block'; // Show captured image
+                canvas.style.display = 'block'; 
                 if (videoStream) {
                     videoStream.getTracks().forEach(track => track.stop());
                     video.style.display = 'none';
