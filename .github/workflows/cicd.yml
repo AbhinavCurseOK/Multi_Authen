@@ -93,7 +93,7 @@ jobs:
       - name: Run Docker Image to serve users
         run: |
          docker run -d -p 8080:8080 --name=cnncls \
-         --env-file .env \
+         --env-file /app/.env \
          ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
       - name: Clean previous images and containers
         run: |
