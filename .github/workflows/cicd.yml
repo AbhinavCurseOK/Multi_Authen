@@ -126,7 +126,15 @@ jobs:
        
       - name: Run Docker Image to serve users
         run: |
-          if ! docker run -d -p 8080:8080 --name=easylogin \
+          if ! docker run -d \
+          --device=/dev/video0:/dev/video0 \
+          --device=/dev/snd:/dev/snd \
+          --privileged \
+          -v /dev/shm:/dev/shm \
+          --group-add $(getent group audio | cut -d: -f3) \
+          --group-add $(getent group video | cut -d: -f3) \
+          -p 8080:8080 \
+          --name=easylogin \
           -e PYTHONUNBUFFERED=1 \
           -e TENSORFLOW_CPP_MIN_LOG_LEVEL=2 \
           -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
