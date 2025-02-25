@@ -18,6 +18,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Pull LFS objects
+        run: git lfs pull
 
       - name: Lint code
         run: echo "Linting repository"
@@ -32,6 +37,11 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Pull LFS objects
+        run: git lfs pull
 
       - name: Install Utilities
         run: |
@@ -69,6 +79,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Pull LFS objects
+        run: git lfs pull
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -92,7 +107,7 @@ jobs:
        
       - name: Run Docker Image to serve users
         run: |
-          docker run -d -p 8080:8080 --name=easylogin \
+          if ! docker run -d -p 8080:8080 --name=easylogin \
           -e PYTHONUNBUFFERED=1 \
           -e TENSORFLOW_CPP_MIN_LOG_LEVEL=2 \
           -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
@@ -122,7 +137,27 @@ jobs:
           -e FIREBASE_MESSAGING_SENDER_ID=${FIREBASE_MESSAGING_SENDER_ID} \
           -e FIREBASE_APP_ID=${FIREBASE_APP_ID} \
           -e FIREBASE_MEASUREMENT_ID=${FIREBASE_MEASUREMENT_ID} \
-          ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest; then
+            echo "Container failed to start"
+            exit 1
+          fi
+
+      - name: Verify container is running
+        run: |
+          sleep 10  # Wait for container to fully start
+          if ! docker ps | grep easylogin; then
+            echo "Container is not running"
+            echo "Container Logs:"
+            docker logs easylogin
+            exit 1
+          fi
+          echo "Container is running successfully"
+          echo "Container Logs:"
+          docker logs easylogin
+          echo "Port Status:"
+          netstat -tulpn | grep 8080
+
       - name: Clean previous images and containers
+        if: always()  # This will run even if previous steps failed
         run: |
          docker system prune -f
