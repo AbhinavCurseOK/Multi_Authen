@@ -92,35 +92,37 @@ jobs:
        
       - name: Run Docker Image to serve users
         run: |
-         docker run -d -p 8080:8080 --name=easylogin \
-         -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-         -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-         -e AWS_REGION=${{ secrets.AWS_REGION }} \
-         -e AWS_ECR_LOGIN_URI=${{ secrets.AWS_ECR_LOGIN_URI }} \
-         -e ECR_REPOSITORY_NAME=${{ secrets.ECR_REPOSITORY_NAME }} \
-                  -e DATABASE_URL=${DATABASE_URL} \
-         -e STORAGE_BUCKET=${STORAGE_BUCKET} \
-         -e TYPE=${TYPE} \
-         -e PROJECT_ID=${PROJECT_ID} \
-         -e PRIVATE_KEY_ID=${PRIVATE_KEY_ID} \
-         -e PRIVATE_KEY="${PRIVATE_KEY}" \
-         -e CLIENT_EMAIL=${CLIENT_EMAIL} \
-         -e CLIENT_ID=${CLIENT_ID} \
-         -e AUTH_URI=${AUTH_URI} \
-         -e TOKEN_URI=${TOKEN_URI} \
-         -e AUTH_PROVIDER_X509_CERT_URL=${AUTH_PROVIDER_X509_CERT_URL} \
-         -e CLIENT_X509_CERT_URL=${CLIENT_X509_CERT_URL} \
-         -e UNIVERSE_DOMAIN=${UNIVERSE_DOMAIN} \
-         -e SECRET_KEY=${SECRET_KEY} \
-         -e FIREBASE_API_KEY=${FIREBASE_API_KEY} \
-         -e FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN} \
-         -e FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL} \
-         -e FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID} \
-         -e FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET} \
-         -e FIREBASE_MESSAGING_SENDER_ID=${FIREBASE_MESSAGING_SENDER_ID} \
-         -e FIREBASE_APP_ID=${FIREBASE_APP_ID} \
-         -e FIREBASE_MEASUREMENT_ID=${FIREBASE_MEASUREMENT_ID} \
-         ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+          docker run -d -p 8080:8080 --name=easylogin \
+          -e PYTHONUNBUFFERED=1 \
+          -e TENSORFLOW_CPP_MIN_LOG_LEVEL=2 \
+          -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+          -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+          -e AWS_REGION=${{ secrets.AWS_REGION }} \
+          -e AWS_ECR_LOGIN_URI=${{ secrets.AWS_ECR_LOGIN_URI }} \
+          -e ECR_REPOSITORY_NAME=${{ secrets.ECR_REPOSITORY_NAME }} \
+          -e DATABASE_URL=${DATABASE_URL} \
+          -e STORAGE_BUCKET=${STORAGE_BUCKET} \
+          -e TYPE=${TYPE} \
+          -e PROJECT_ID=${PROJECT_ID} \
+          -e PRIVATE_KEY_ID=${PRIVATE_KEY_ID} \
+          -e PRIVATE_KEY="${PRIVATE_KEY}" \
+          -e CLIENT_EMAIL=${CLIENT_EMAIL} \
+          -e CLIENT_ID=${CLIENT_ID} \
+          -e AUTH_URI=${AUTH_URI} \
+          -e TOKEN_URI=${TOKEN_URI} \
+          -e AUTH_PROVIDER_X509_CERT_URL=${AUTH_PROVIDER_X509_CERT_URL} \
+          -e CLIENT_X509_CERT_URL=${CLIENT_X509_CERT_URL} \
+          -e UNIVERSE_DOMAIN=${UNIVERSE_DOMAIN} \
+          -e SECRET_KEY=${SECRET_KEY} \
+          -e FIREBASE_API_KEY=${FIREBASE_API_KEY} \
+          -e FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN} \
+          -e FIREBASE_DATABASE_URL=${FIREBASE_DATABASE_URL} \
+          -e FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID} \
+          -e FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET} \
+          -e FIREBASE_MESSAGING_SENDER_ID=${FIREBASE_MESSAGING_SENDER_ID} \
+          -e FIREBASE_APP_ID=${FIREBASE_APP_ID} \
+          -e FIREBASE_MEASUREMENT_ID=${FIREBASE_MEASUREMENT_ID} \
+          ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
       - name: Clean previous images and containers
         run: |
          docker system prune -f
